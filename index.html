@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f3f0e9" />
+    <meta
+      name="description"
+      content="Hauldump lit tes commandes Gmail, reconstruit ton dressing, et t’aide à décider tes prochains achats sans inventer de manque ni de promotion."
+    />
+    <title>Hauldump — ton dressing, lu dans Gmail</title>
+    <style>
+      :root {
+        --paper: #f3f0e9;
+        --ink: #16140f;
+        --muted: #6b6558;
+        --line: #d9d3c6;
+        --brick: #8c3f2a;
+        --card: #faf8f3;
+        --ok: #2c4a38;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
+        font-size: 17px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; }
+      .wrap {
+        width: min(720px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        padding: 28px 0 8px;
+      }
+      .wordmark {
+        letter-spacing: 0.22em;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+      }
+      .nav-note {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      h1, h2, h3 {
+        font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: clamp(2.05rem, 5.2vw, 3.15rem);
+        line-height: 1.12;
+        margin: 56px 0 20px;
+        max-width: 18ch;
+      }
+      .lede {
+        font-size: 1.05rem;
+        color: var(--ink);
+        max-width: 42em;
+        margin: 0 0 28px;
+      }
+      .who {
+        color: var(--muted);
+        margin: 0 0 36px;
+        max-width: 40em;
+      }
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 18px;
+        align-items: center;
+        margin-bottom: 64px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ink);
+        color: var(--paper);
+        text-decoration: none;
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font: inherit;
+        font-size: 15px;
+        font-weight: 560;
+        cursor: pointer;
+      }
+      .btn:hover { opacity: 0.92; }
+      .btn-ghost {
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--line);
+      }
+      .fine {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      hr.rule {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 0;
+      }
+      .features {
+        display: grid;
+        gap: 0;
+        margin: 8px 0 8px;
+      }
+      article {
+        padding: 28px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      article:last-child { border-bottom: 0; }
+      .kicker {
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--brick);
+        margin: 0 0 8px;
+        font-weight: 650;
+      }
+      article h2 {
+        font-size: 1.55rem;
+        margin: 0 0 8px;
+        line-height: 1.2;
+      }
+      article p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 48em;
+      }
+      .price-block {
+        padding: 48px 0 24px;
+      }
+      .price-block h2 {
+        font-size: 1.7rem;
+        margin: 0 0 8px;
+      }
+      .plans {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 24px 0 12px;
+      }
+      @media (max-width: 560px) {
+        .plans { grid-template-columns: 1fr; }
+      }
+      .plan {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 20px 18px 18px;
+      }
+      .plan.preferred {
+        border-color: var(--ink);
+      }
+      .plan strong {
+        display: block;
+        font-size: 1.45rem;
+        font-family: "Iowan Old Style", Palatino, Georgia, serif;
+        font-weight: 500;
+      }
+      .plan span {
+        display: block;
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 6px;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        color: var(--brick);
+        font-weight: 650;
+      }
+      .trust {
+        color: var(--muted);
+        font-size: 14px;
+        max-width: 46em;
+        margin: 8px 0 0;
+      }
+      form {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 28px 24px;
+        margin: 12px 0 72px;
+      }
+      form h2 {
+        font-size: 1.55rem;
+        margin: 0 0 8px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 560;
+        margin: 16px 0 6px;
+      }
+      input[type="email"],
+      textarea,
+      select {
+        width: 100%;
+        font: inherit;
+        font-size: 16px;
+        background: var(--paper);
+        color: var(--ink);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 11px 12px;
+      }
+      textarea { min-height: 88px; resize: vertical; }
+      .choices {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .choices label {
+        margin: 0;
+        font-weight: 500;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 14px;
+        cursor: pointer;
+        background: var(--paper);
+      }
+      .choices input { accent-color: var(--ink); }
+      .form-note {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 14px 0 0;
+      }
+      #status {
+        display: none;
+        margin: 16px 0 0;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: #e7efe8;
+        color: var(--ok);
+        font-size: 14px;
+      }
+      #status.show { display: block; }
+      footer {
+        padding: 0 0 48px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      footer p { margin: 0 0 8px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <a class="wordmark" href="#">HAULDUMP</a>
+        <span class="nav-note">Liste d’attente gratuite · bêta privée</span>
+      </header>
+
+      <h1>Ton dressing, lu dans Gmail. Tes achats, sans manque ni promo inventés.</h1>
+      <p class="lede">
+        Hauldump reconstruit ton dressing depuis tes commandes, te montre comment il évolue,
+        et t’aide à calibrer tes goûts — puis à décider le prochain achat.
+      </p>
+      <p class="who">
+        Pour celles et ceux qui commandent déjà des vêtements (les confirmations sont dans Gmail)
+        et veulent un vestiaire réel, pas un catalogue à photographier, ni un feed qui décrète un trou.
+      </p>
+      <div class="cta-row">
+        <a class="btn" href="#waitlist">Rejoindre la liste d’attente</a>
+        <span class="fine">Gratuit pour commencer · lecture seule · pas de photos à trier · « acheter moins » est un plan valide</span>
+      </div>
+
+      <hr class="rule" />
+
+      <section class="features" aria-label="Ce que Hauldump fait">
+        <article>
+          <p class="kicker">01 — Dressing</p>
+          <h2>Tes commandes Gmail, rangées. Les retours, écartés.</h2>
+          <p>
+            Un geste : Continuer avec Google, choisir la boîte où arrivent les commandes,
+            autoriser la lecture seule. Hauldump reconstruit les pièces certaines, met les plus
+            récentes en premier, et ne retire une ligne que si le retour la nomme. Pas de formulaire
+            de style. Pas de photos à trier avant la première valeur.
+          </p>
+        </article>
+        <article>
+          <p class="kicker">02 — Ligne</p>
+          <h2>Comprendre l’évolution, calibrer le goût — à ton signal.</h2>
+          <p>
+            L’analyse ne se lance que si tu le demandes. Deux fenêtres de 18 mois, les marques
+            plus présentes ou devenues historiques, les pièces exactes derrière le signal.
+            Dans Découvrir, une piste sourcée à la fois — ça me parle, pas pour moi — sans score
+            de goût inventé, sans manque décrété.
+          </p>
+        </article>
+        <article>
+          <p class="kicker">03 — Cap</p>
+          <h2>Décider. Surveiller seulement une référence exacte.</h2>
+          <p>
+            Plan tient trois priorités, une phrase ou un lien. « Acheter moins » est une issue
+            du produit. Une alerte n’existe qu’après Suivre le prix, et seulement si la baisse
+            et le stock sont vérifiés sur la fiche — une newsletter n’est jamais une bonne affaire.
+          </p>
+        </article>
+      </section>
+
+      <section class="price-block" aria-labelledby="prix">
+        <p class="kicker">Offre</p>
+        <h2 id="prix">Gratuit pour commencer.</h2>
+        <p class="who" style="margin-bottom:0">
+          Liste d’attente gratuite — rien à choisir, rien à payer pour s’inscrire.
+          9&nbsp;€ par mois ou 49&nbsp;€ à vie resteront possibles plus tard, en option.
+          Un outil personnel, pas un studio de stylisme.
+        </p>
+        <div class="plans">
+          <div class="plan preferred">
+            <span class="badge">Maintenant</span>
+            <strong>Gratuit</strong>
+            <span>Rejoindre la liste d’attente. Quelques places en bêta privée.</span>
+          </div>
+          <div class="plan">
+            <strong>Plus tard, optionnel</strong>
+            <span>9&nbsp;€ / mois ou 49&nbsp;€ à vie, si tu t’en sers. Pas requis pour s’inscrire.</span>
+          </div>
+        </div>
+        <p class="trust">
+          Gmail en lecture seule. Aucun mot de passe, jeton ou corps brut n’est envoyé au navigateur.
+          La suppression de compte coupe l’accès et efface l’espace. Beauté et sous-vêtements restent
+          hors du dressing vêtements.
+        </p>
+      </section>
+
+      <form id="waitlist" novalidate>
+        <h2>Rejoindre la liste d’attente.</h2>
+        <p class="form-note" style="margin-top:0">
+          Gratuit. Quelques places. Cette page n’a pas de serveur : envoyer ouvre ton client mail
+          vers la liste d’attente. Rien n’est créé, rien n’est stocké ici.
+        </p>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required placeholder="toi@exemple.fr" />
+
+        <label for="note">Note (optionnel)</label>
+        <textarea id="note" name="note" placeholder="Boîte Gmail des commandes, marques que tu suis, ce que tu refuses dans un dressing app."></textarea>
+
+        <div class="cta-row" style="margin: 20px 0 0">
+          <button class="btn" type="submit">Envoyer la demande</button>
+        </div>
+        <p id="status" role="status"></p>
+        <p class="form-note">
+          Destinataire : waitlist@hauldump.com · objet prérempli · tu restes maître de l’envoi.
+        </p>
+      </form>
+
+      <footer>
+        <p>Hauldump n’invente pas de manque, n’achète pas à ta place, et laisse l’essayage virtuel de côté.</p>
+        <p>Produit personnel aujourd’hui. La bêta hébergée ouvrira Gmail derrière Continuer avec Google, sans projet cloud à créer.</p>
+      </footer>
+    </div>
+    <script>
+      const form = document.getElementById("waitlist");
+      const status = document.getElementById("status");
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const note = document.getElementById("note").value.trim();
+        const plan = "liste d'attente gratuite";
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          status.className = "show";
+          status.style.background = "#f3e4dc";
+          status.style.color = "#8c3f2a";
+          status.textContent = "Indique un email valide. Rien n’a été envoyé.";
+          return;
+        }
+        const body = [
+          "Liste d'attente Hauldump",
+          "Email : " + email,
+          "Offre : " + plan,
+          note ? "Note : " + note : ""
+        ].filter(Boolean).join("\n");
+        const href =
+          "mailto:waitlist@hauldump.com" +
+          "?subject=" + encodeURIComponent("Liste d'attente Hauldump — gratuit") +
+          "&body=" + encodeURIComponent(body);
+        status.style.background = "#e7efe8";
+        status.style.color = "#2c4a38";
+        status.className = "show";
+        status.textContent =
+          "Cette page n’enregistre rien. Ton client mail va s’ouvrir — envoie le message pour rester sur la liste.";
+        window.location.href = href;
+      });
+    </script>
+  </body>
+</html>
