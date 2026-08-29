@@ -154,6 +154,18 @@
     <script>
       const form = document.getElementById("waitlist");
       const status = document.getElementById("status");
+      const NOTE_KEY = "hauldump-waitlist-note";
+      function showQuiet() {
+        status.className = "show";
+        status.textContent = "Rien n’a été envoyé. Pas de boîte pour l’instant.";
+      }
+      try {
+        const saved = localStorage.getItem(NOTE_KEY);
+        if (saved) {
+          document.getElementById("email").value = saved;
+          showQuiet();
+        }
+      } catch (e) {}
       form.addEventListener("submit", function (event) {
         event.preventDefault();
         const email = document.getElementById("email").value.trim();
@@ -162,14 +174,8 @@
           status.textContent = "Un email valide.";
           return;
         }
-        const body = "Email : " + email;
-        const href =
-          "mailto:waitlist@hauldump.com" +
-          "?subject=" + encodeURIComponent("Liste d'attente Hauldump") +
-          "&body=" + encodeURIComponent(body);
-        status.className = "show";
-        status.textContent = "Ton mail va s’ouvrir.";
-        window.location.href = href;
+        try { localStorage.setItem(NOTE_KEY, email); } catch (e) {}
+        showQuiet();
       });
     </script>
   </body>
